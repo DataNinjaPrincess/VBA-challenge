@@ -1,0 +1,53 @@
+Sub Ticker()
+
+Dim first As Double
+Dim last As Double
+Dim total As Double
+Dim change As Double
+Dim pctchg As Double
+
+Range("I1").Value = "Ticker"
+Range("J1").Value = "Yearly Change"
+Range("K1").Value = "Percent Change"
+Range("L1").Value = "Total Volume"
+
+tgtrow = 2
+first = Range("C2").Value
+
+For i = 2 To ActiveSheet.UsedRange.Rows.Count + 1
+
+
+
+If Cells(i, 1).Value <> Cells(i + 1, 1).Value Then
+Cells(tgtrow - 1, 12).Value = total
+Cells(tgtrow, 9).Value = Cells(i, 1).Value
+ tgtrow = tgtrow + 1
+ total = Cells(i, 7).Value
+ last = Cells(i, 6).Value
+ change = first - last
+ Cells(tgtrow - 1, 10).Value = change
+ pctchg = change / first
+ Cells(tgtrow - 1, 11).Value = pctchg
+    'If pctchg < 0 Then
+    'Cells(tgrow - 1, 11).Interior.ColorIndex = 3
+    'Else
+    'Cells(tgrow - 1, 11).Interior.ColorIndex = 4
+    'End If
+ 
+  first = Cells(i, 3).Value
+ Else
+total = total + Cells(i, 7).Value
+ End If
+ 
+ Next i
+
+Range("L1").Value = "Total Volume"
+
+
+End Sub
+
+Sub Clear()
+
+Range("I:L").Clear
+
+End Sub
