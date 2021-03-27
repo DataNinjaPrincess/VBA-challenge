@@ -27,7 +27,7 @@ Cells(tgtrow, 9).Value = Cells(i, 1).Value
  change = first - last
  Cells(tgtrow - 1, 10).Value = change
  pctchg = change / first
- Cells(tgtrow - 1, 11).Value = pctchg
+ Cells(tgtrow - 1, 11).Value = Application.WorksheetFunction.Round(pctchg * 100, 2) & "%"
     'If pctchg < 0 Then
     'Cells(tgrow - 1, 11).Interior.ColorIndex = 3
     'Else
