@@ -1,0 +1,165 @@
+Sub Ticker()
+
+'creates summary table of ticker symbol, change in price from year open to year close, percent change, and total volume traded for each stock listed.
+'also captures the greatest percent increase, percent decrease, and volume traded, along with the relevant ticker symbol
+
+'PLNT made the entire code die due to a #Div/0 error, so here we are
+On Error Resume Next
+
+'naming names
+Dim first As Double 'first open value
+Dim last As Double 'last close value
+Dim total As Double 'running total of volume
+Dim change As Double 'change between first open and last close
+Dim pctchg As Double 'percent change
+
+'Let's start at the very beginning
+Sheets(1).Select
+
+'the whole thing in one click
+For Each ws In Worksheets
+
+'header setup
+Range("I1").Value = "Ticker"
+Range("J1").Value = "Yearly Change"
+Range("K1").Value = "Percent Change"
+Range("L1").Value = "Total Volume"
+Range("p1").Value = "Ticker"
+Range("q1").Value = "Value"
+Range("o2").Value = "Greatest % Increase"
+Range("o3").Value = "Greatest % Decrease"
+Range("o4").Value = "Greatest Total Volume"
+
+'to move the target along
+tgtrow = 2
+
+'set the initial first
+first = Range("C2").Value
+
+'iterative iteration
+For I = 2 To ActiveSheet.UsedRange.Rows.Count + 1
+
+'fill in the new columns
+If Cells(I, 1).Value <> Cells(I + 1, 1).Value Then 'is it new?
+    
+    'capture all the things
+    total = total + Cells(I, 7).Value
+    Cells(tgtrow, 12).Value = total
+    Cells(tgtrow, 9).Value = Cells(I, 1).Value
+    tgtrow = tgtrow + 1
+    total = Cells(I + 1, 7).Value
+    last = Cells(I, 6).Value
+    change = last - first
+    Cells(tgtrow - 1, 10).Value = change
+    pctchg = change / first
+    Cells(tgtrow - 1, 11).Value = Application.WorksheetFunction.Round(pctchg * 100, 2) & "%"
+    first = Cells(I + 1, 3).Value
+Else
+    
+    'just a little update
+    total = total + Cells(I, 7).Value
+ 
+End If
+
+Next I
+ 
+'color code increase/decrease
+For p = 2 To Cells(Rows.Count, 9).End(xlUp).Row
+   If Cells(p, 10) < 0 Then
+  Cells(p, 10).Interior.ColorIndex = 3 'negative
+Else
+   Cells(p, 10).Interior.ColorIndex = 4 'positive
+End If
+    
+Next p
+   
+'subroutine because I didn't feel like testing in production
+Call Greatest
+  
+'it's helpful to see the whole number
+Columns("I:Q").AutoFit
+  
+'next sheet same as the last sheet
+Sheets(ActiveSheet.Index + 1).Activate
+ 
+Next ws
+ 
+End Sub
+
+
+
+Sub Greatest()
+
+'variable invite list
+Dim maxinc As Double 'maximum increase amount
+Dim maxdec As Double 'maximum decrease amount
+Dim maxvol As Double 'maximum volume amount
+Dim voltick As String 'ticker symbol for stock with max volume
+Dim inctick As String 'ticker symbol for stock with max increase
+Dim dectick As String 'ticker symbol for stock with max decrease
+
+'baseline
+maxinc = 0
+maxdec = 0
+maxvol = 0
+
+'Max increase/decrease
+For inc = 2 To Cells(Rows.Count, 9).End(xlUp).Row
+
+   If Cells(inc, 11).Value >= 0 Then
+     If Cells(inc, 11).Value > maxinc Then
+     maxinc = Cells(inc, 11).Value
+     inctick = Cells(inc, 9).Value
+  Else
+  End If
+    ElseIf Cells(inc, 11).Value < maxdec Then
+  maxdec = Cells(inc, 11).Value
+  dectick = Cells(inc, 9).Value
+  End If
+
+  Next inc
+
+ 'Max volume
+For vol = 2 To Cells(Rows.Count, 9).End(xlUp).Row
+   
+   If Cells(vol, 12).Value >= maxvol Then
+     maxvol = Cells(vol, 12).Value
+     voltick = Cells(vol, 9).Value
+  Else
+  End If
+   
+Next vol
+   
+   'it doesn't count until it's printed
+    Cells(2, 16).Value = inctick
+    Cells(3, 16).Value = dectick
+    Cells(4, 16).Value = voltick
+    Cells(2, 17).Value = maxinc
+    Cells(3, 17).Value = maxdec
+    Cells(4, 17).Value = maxvol
+    Range("q2:q3").NumberFormat = "##0.00%"
+
+
+
+
+End Sub
+
+Sub Reset()
+
+On Error Resume Next
+
+'Let's start at the very beginning
+Sheets(1).Select
+
+'the whole thing in one click
+For Each ws In Worksheets
+
+'clarity at last
+Range("I:q").Clear
+
+'next sheet same as the last sheet
+Sheets(ActiveSheet.Index + 1).Activate
+
+Next ws
+
+End Sub
